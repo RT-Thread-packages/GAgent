@@ -40,7 +40,7 @@
 static rt_thread_t lan_thread;
 static int local_port = 7100;
 
-#if (PKG_GAGENT_CLOUD_DEBUG == 1)
+#ifdef PKG_GAGENT_CLOUD_DEBUG
 #define     LAN_RECV_DEBUG
 #define     LAN_SEND_DEBUG
 #endif
