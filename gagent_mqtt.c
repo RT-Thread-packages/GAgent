@@ -27,7 +27,7 @@
 
 static MQTTClient gagent_mqtt;
 
-#if (PKG_GAGENT_CLOUD_DEBUG == 1)
+#ifdef PKG_GAGENT_CLOUD_DEBUG
 #define MQTT_RECV_DEBUG
 #define MQTT_SEND_DEBUG
 #endif

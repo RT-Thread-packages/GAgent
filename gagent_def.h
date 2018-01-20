@@ -28,11 +28,7 @@
 #include "webclient.h"
 #include "paho_mqtt.h"
 
-#ifndef PKG_GAGENT_CLOUD_DEBUG
-#define PKG_GAGENT_CLOUD_DEBUG        1
-#endif
-
-#if (PKG_GAGENT_CLOUD_DEBUG == 1)
+#ifdef PKG_GAGENT_CLOUD_DEBUG
 #define     gagent_dbg            rt_kprintf("[gagent dbg:%d] %s ", __LINE__, __FUNCTION__);rt_kprintf
 #define     gagent_err            rt_kprintf("[gagent err:%d] %s ", __LINE__, __FUNCTION__);rt_kprintf
 #else

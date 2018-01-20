@@ -139,7 +139,7 @@ static int gagent_cloud_parse_config(con_st *con)
         gagent_dbg("passcode empty!\n");
     }
 
-#if (PKG_GAGENT_CLOUD_DEBUG == 1)
+#ifdef PKG_GAGENT_CLOUD_DEBUG
 	{
 		rt_uint8_t i;
         rt_kprintf("mac: ");
