@@ -1,26 +1,26 @@
 /*
- * File      : gagent_lan.c
- * This file is part of RT-Thread RTOS
- * COPYRIGHT (C) 2018, RT-Thread Development Team
- *
- *  This program is free software; you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation; either version 2 of the License, or
- *  (at your option) any later version.
- *
- *  This program is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License along
- *  with this program; if not, write to the Free Software Foundation, Inc.,
- *  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
- *
- * Change Logs:
- * Date           Author       Notes
- * 2018-01-03     flyingcys    first version
- */
+* File      : gagent_lan.c
+* This file is part of RT-Thread RTOS
+* COPYRIGHT (C) 2018, RT-Thread Development Team
+*
+*  This program is free software; you can redistribute it and/or modify
+*  it under the terms of the GNU General Public License as published by
+*  the Free Software Foundation; either version 2 of the License, or
+*  (at your option) any later version.
+*
+*  This program is distributed in the hope that it will be useful,
+*  but WITHOUT ANY WARRANTY; without even the implied warranty of
+*  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+*  GNU General Public License for more details.
+*
+*  You should have received a copy of the GNU General Public License along
+*  with this program; if not, write to the Free Software Foundation, Inc.,
+*  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+*
+* Change Logs:
+* Date           Author       Notes
+* 2018-01-03     flyingcys    first version
+*/
 #include "gagent_def.h"
 #include "gagent_cloud.h"
 
@@ -49,7 +49,7 @@ static int local_port = 7100;
 static int lan_send_device_info(lan_st *lan, rt_uint8_t send_type)
 {
     char *index, *len_index;
-    
+
     memset(lan->send_buf, 0, sizeof(lan->send_buf));
 
     index = lan->send_buf;
@@ -61,7 +61,6 @@ static int lan_send_device_info(lan_st *lan, rt_uint8_t send_type)
     *index ++ = 0x03;
 
     //len
-//    *index ++ = 0x0a;
     len_index = index;
     index ++;
 
@@ -81,7 +80,7 @@ static int lan_send_device_info(lan_st *lan, rt_uint8_t send_type)
     //did
     memcpy(index, lan->con->did, 0x16);
     index += strlen(lan->con->did);
-    
+
     //mac_len
     *index ++ = 0x00;
     *index ++ = 0x06;
@@ -107,10 +106,9 @@ static int lan_send_device_info(lan_st *lan, rt_uint8_t send_type)
 
     lan->send_len = index - lan->send_buf;
     *len_index = lan->send_len - HEAD_LEN;
-    
+
     return RT_EOK;
 }
-
 
 static int lan_udp_do_packet(lan_st *lan)
 {
@@ -127,19 +125,18 @@ static int lan_udp_do_packet(lan_st *lan)
 
         memcpy(&cmd, one_packet + 6, 2);
         cmd = ntohs(cmd);
-        
+
         gagent_dbg("cmd:%d\n", cmd);
-        
         switch(cmd)
         {
-            case 0x03:
-                rc = lan_send_device_info(lan, UDP_SEND_TYPE_DISCOVER);
+        case 0x03:
+            rc = lan_send_device_info(lan, UDP_SEND_TYPE_DISCOVER);
             break;
         }
-    
+
         one_packet += (data_len + len_num + HEAD_LEN);
         lan->recv_len -= (data_len + len_num + HEAD_LEN);
-        
+
         if(rc != 0)
             return rc;
     }
@@ -167,7 +164,7 @@ static int lan_get_passcode(lan_st *lan)
 
     //flag
     *index ++ = 0x00;
-    
+
     //cmd
     *index ++ = 0x00;
     *index ++ = 0x07;
@@ -182,7 +179,7 @@ static int lan_get_passcode(lan_st *lan)
     //
     lan->send_len = (index - lan->send_buf);
     *len_index = lan->send_len - HEAD_LEN;
-    
+
     return RT_EOK;
 }
 
@@ -206,7 +203,7 @@ static int lan_get_device_info(lan_st *lan)
 
     //flag
     *index ++ = 0x00;
-    
+
     //cmd
     *index ++ = 0x00;
     *index ++ = 0x14;
@@ -225,27 +222,27 @@ static int lan_get_device_info(lan_st *lan)
     //mcu_soft_version
     index += 8;
 
-	//p0 version
-	index += 8;
+    //p0 version
+    index += 8;
 
-	//remain1
-	index += 8;
+    //remain1
+    index += 8;
 
     //remain2_len
-	*index ++ = 0x00;
-	*index ++ = 0x00;
+    *index ++ = 0x00;
+    *index ++ = 0x00;
 
-	//pk_len
+    //pk_len
     *index ++ = 0x00;
     *index ++ = strlen(lan->con->pk);
 
     //pk
     memcpy(index, lan->con->pk, strlen(lan->con->pk));
     index += strlen(lan->con->pk);
-	
+
     lan->send_len = (index - lan->send_buf);
     *len_index = lan->send_len - HEAD_LEN;
-    
+
     return RT_EOK;
 }
 
@@ -253,14 +250,14 @@ static int lan_login_device(lan_st *lan, char *packet)
 {
     char *index, *len_index;
     char passcode_recv[32];
-    uint16_t passcode_len;
+    rt_uint16_t passcode_len;
 
     memcpy(&passcode_len, packet + HEAD_LEN + 1 + 2, 2);
     passcode_len = ntohs(passcode_len);
 
     memset(passcode_recv, 0x00, sizeof(passcode_recv));
     memcpy(passcode_recv, packet + HEAD_LEN + 1 + 2 + 2, passcode_len);
-        
+
     index = lan->send_buf;
 
     memset(index, 0, sizeof(lan->send_buf));
@@ -297,31 +294,31 @@ static int lan_login_device(lan_st *lan, char *packet)
 
 static int lan_trans_data(lan_st *lan, char *packet)
 {
-    uint16_t len, cmd;
+    rt_uint16_t len, cmd;
     char *index, *kv;
-    uint16_t kv_len;
-    uint8_t length_len, action;
+    rt_uint16_t kv_len;
+    rt_uint8_t length_len, action;
 
     lan->send_len = 0;
     //
     action = 0;
     kv_len = 0;
     kv = 0;
-    
+
     index = packet;
-	len = gagent_parse_rem_len((const uint8_t *)index + 4);
-	length_len = gagent_num_rem_len_bytes((const uint8_t*)index + 4);
+    len = gagent_parse_rem_len((const uint8_t *)index + 4);
+    length_len = gagent_num_rem_len_bytes((const uint8_t*)index + 4);
 
     index += (HEAD_LEN + length_len);
-    
+
     rt_memcpy(&cmd, index, 2);
     index += 2;
 
     cmd = ntohs(cmd);
     gagent_dbg("cmd:%0x\n", cmd);
-    
-	// 00 00 00 03 06 00 00 90 01 01 01 
-	// 00 00 00 03 0A 00 00 93 00 00 00 00 01 01 01 
+
+    // 00 00 00 03 06 00 00 90 01 01 01 
+    // 00 00 00 03 0A 00 00 93 00 00 00 00 01 01 01 
     if(cmd == 0x90)
     {
         action = *index ++;
@@ -334,14 +331,14 @@ static int lan_trans_data(lan_st *lan, char *packet)
         memcpy(&lan->sn, index, 4);
         index += 4;
         gagent_dbg("lan_sn:%d\n", lan->sn);
-        
+
         action = *index ++;
         kv = index;
         kv_len = len - 8;
     }
     else
         return -RT_ERROR;
-    
+
     return gagent_cloud_recv_packet(CMD_FROM_LAN, action, (uint8_t *)kv, kv_len);
 }
 
@@ -395,34 +392,34 @@ static int lan_tcp_do_packet(lan_st *lan)
         gagent_dbg("lan_cmd:%x\n",cmd);
         switch(cmd)
         {
-            case 0x06:
-                rc = lan_get_passcode(lan);
+        case 0x06:
+            rc = lan_get_passcode(lan);
             break;
 
-            case 0x08:
-                rc = lan_login_device(lan, one_packet);
+        case 0x08:
+            rc = lan_login_device(lan, one_packet);
             break;
 
-            case 0x90:
-            case 0x93:
-                rc = lan_trans_data(lan, one_packet);
+        case 0x90:
+        case 0x93:
+            rc = lan_trans_data(lan, one_packet);
             break;
 
-            case 0x13:
-                rc = lan_get_device_info(lan);
+        case 0x13:
+            rc = lan_get_device_info(lan);
             break;
 
-            case 0x15:
-                rc = lan_heart_beat(lan);
+        case 0x15:
+            rc = lan_heart_beat(lan);
             break;
 
-            default:
+        default:
             break;
         }
 
         one_packet += (data_len + len_num + HEAD_LEN);
         lan->recv_len -= (data_len + len_num + HEAD_LEN);
-        
+
         if(rc != 0)
             return rc;
     }
@@ -436,23 +433,23 @@ static int gagent_create_tcp_socket(lan_st *lan)
     int opt;
 
     if(lan->tcp_server != -1)
-        return RT_EOK;
-        
+    return RT_EOK;
+
     lan->tcp_server = lwip_socket(AF_INET, SOCK_STREAM, 0);
     if(lan->tcp_server < 0)
     {
         gagent_err("tcp socket create failed!\n");
         return -RT_ERROR;
     }
-    
+
     lan->tcp_server_addr.sin_family = AF_INET;
     lan->tcp_server_addr.sin_port = htons(GAGENT_CLOUD_TCP_PORT);
     lan->tcp_server_addr.sin_addr.s_addr = INADDR_ANY;
     memset(&lan->tcp_server_addr.sin_zero, 0, sizeof(lan->tcp_server_addr.sin_zero));
-        
+
     opt = 1;
     setsockopt(lan->tcp_server, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt));
-    
+
     rc = lwip_bind(lan->tcp_server, (struct sockaddr *)&lan->tcp_server_addr, (socklen_t)sizeof(lan->tcp_server_addr));
     if(rc < 0)
     {
@@ -460,7 +457,7 @@ static int gagent_create_tcp_socket(lan_st *lan)
         lwip_close(lan->tcp_server);
         return -RT_ERROR;
     }
-    
+
     rc = lwip_listen(lan->tcp_server, MAX_CLIENT);
     if(rc < 0)
     {
@@ -468,7 +465,6 @@ static int gagent_create_tcp_socket(lan_st *lan)
         lwip_close(lan->tcp_server);
         return -RT_ERROR;
     }
-
 
     return RT_EOK;
 }
@@ -481,7 +477,7 @@ static int gagent_create_udp_socket(lan_st *lan)
 
     if(lan->udp_server != -1)
         return RT_EOK;
-        
+
     lan->udp_server = lwip_socket(AF_INET, SOCK_DGRAM, 0);
     if(lan->udp_server < 0)
     {
@@ -511,16 +507,16 @@ static int gagent_create_udp_socket(lan_st *lan)
     lan->broadcast_to.sin_family = AF_INET;
     lan->broadcast_to.sin_port = htons(GAGENT_CLOUD_BROADCAST);
     lan->broadcast_to.sin_addr.s_addr = inet_addr("255.255.255.255");
-    
+
     return RT_EOK;
 }
 
 static int gagent_create_localudp_socket(lan_st *lan)
 {
     struct sockaddr_in local_udp_server;
-    
+
     if(lan->local_sock != -1)
-        return RT_EOK;
+    return RT_EOK;
 
     lan->local_sock = lwip_socket(AF_INET, SOCK_DGRAM, 0);
     if(lan->local_sock < 0)
@@ -550,7 +546,7 @@ static int gagent_close_tcp_socket(lan_st *lan)
         lwip_close(lan->tcp_server);
         lan->tcp_server = -1;
     }
-    
+
     return RT_EOK;
 }
 
@@ -594,7 +590,7 @@ void gagent_lan_thread(void *parameter)
     lan->tcp_server = -1;
     lan->udp_server = -1;
     lan->local_sock = -1;
-    
+
     while(1)
     {
         if(gagent_create_tcp_socket(lan) < 0)
@@ -609,31 +605,31 @@ void gagent_lan_thread(void *parameter)
             continue;
         }
 
-				if(gagent_create_localudp_socket(lan) < 0)
+        if(gagent_create_localudp_socket(lan) < 0)
         {
             rt_thread_delay(rt_tick_from_millisecond(3000));
             continue;
         }
-        
+
         for(id = 0; id < MAX_CLIENT; id ++)
-				{
+        {
             lan->client_fd[id] = -1;
         } 
-        
+
         while(1)
         {
             FD_ZERO(&readfds);
             FD_SET(lan->tcp_server, &readfds);
             FD_SET(lan->udp_server, &readfds);
             FD_SET(lan->local_sock, &readfds);
-            
+
             maxfd = lan->tcp_server;
             if(lan->udp_server > maxfd)
                 maxfd = lan->udp_server;
 
             if(lan->local_sock > maxfd)
                 maxfd = lan->local_sock;
-            
+
             for(id = 0; id < MAX_CLIENT; id ++)
             {
                 if(lan->client_fd[id] == -1)
@@ -650,26 +646,26 @@ void gagent_lan_thread(void *parameter)
             rc = lwip_select(maxfd + 1, &readfds, 0, 0, &timeout);
             if(rc < 0)
             {
-               gagent_err("socket select failed!\n");
+                gagent_err("socket select failed!\n");
                 break;
             }
             else if(rc == 0)
             {
                 if(tcp_client_count >= MAX_CLIENT)
                     continue;
-                    
+
                 //broadcast    
                 rc = lan_send_device_info(lan, UDP_SEND_TYPE_BOARDCAST);
                 if(rc == RT_EOK && lan->send_len > 0)
                 {
                     rc = lwip_sendto(lan->udp_server, lan->send_buf, lan->send_len, 0,
-                                    (struct sockaddr *)&lan->broadcast_to, (socklen_t)sizeof(lan->broadcast_to));
+                                        (struct sockaddr *)&lan->broadcast_to, (socklen_t)sizeof(lan->broadcast_to));
                     if(rc <= 0)
                     {
                         gagent_err("udp socket broadcast failed! errno:%d\n", errno);
                         break;
                     }
-                 }   
+                }   
 
                 continue;
             }
@@ -681,7 +677,7 @@ void gagent_lan_thread(void *parameter)
                 struct sockaddr_in local_client_addr;
                 int addr_len = sizeof(local_client_addr);
                 rt_uint8_t i;
-                
+
                 lan->recv_len = lwip_recvfrom(lan->local_sock, lan->recv_buf, sizeof(lan->recv_buf), 0,
                                                 (struct sockaddr *)&local_client_addr, (socklen_t *)&addr_len);
                 if(local_client_addr.sin_addr.s_addr != *(uint32_t *)&netif_default->ip_addr)
@@ -707,7 +703,7 @@ void gagent_lan_thread(void *parameter)
                         lwip_close(lan->client_fd[i]);
                         lan->client_fd[i] = -1;
                         if(tcp_client_count > 0)
-                            tcp_client_count --;
+                        tcp_client_count --;
                     }
                     gagent_dbg("send client send len:%d\n", rc);
                 }
@@ -718,13 +714,13 @@ void gagent_lan_thread(void *parameter)
                 //udp socket can read
                 addr_len = sizeof(client_addr);
                 lan->recv_len = lwip_recvfrom(lan->udp_server, lan->recv_buf, sizeof(lan->recv_buf), 0,
-                                                (struct sockaddr *)&client_addr, (socklen_t *)&addr_len);
+                        (struct sockaddr *)&client_addr, (socklen_t *)&addr_len);
                 if(lan->recv_len <= 0)
                 {
                     gagent_err("udp socket recv from failed! errno:%d\n", errno);
                     break;
                 }
-                
+
 #ifdef LAN_RECV_DEBUG
                 {
                     int i;
@@ -737,6 +733,7 @@ void gagent_lan_thread(void *parameter)
                     rt_kprintf("\r\n");
                 }
 #endif
+
                 rc = lan_udp_do_packet(lan);
                 if(rc == RT_EOK && lan->send_len > 0)
                 {
@@ -761,7 +758,7 @@ void gagent_lan_thread(void *parameter)
                     gagent_dbg("udp socket sendto len:%d\n", rc);
                 }
             }
-            
+
             if(FD_ISSET(lan->tcp_server, &readfds))
             {
                 //tcp socket can read
@@ -778,7 +775,7 @@ void gagent_lan_thread(void *parameter)
                     if(lan->client_fd[id] == -1)
                         break;
                 }
-                
+
                 if(id >= MAX_CLIENT)
                 {
                     gagent_dbg("max client!\n");
@@ -795,7 +792,7 @@ void gagent_lan_thread(void *parameter)
             {
                 if(lan->client_fd[id] == -1)
                     continue;
-                    
+
                 if(FD_ISSET(lan->client_fd[id], &readfds))
                 {
                     memset(lan->recv_buf, 0, sizeof(lan->recv_buf));
@@ -803,7 +800,7 @@ void gagent_lan_thread(void *parameter)
                     if(lan->recv_len <= 0)
                     {
                         gagent_err("lan:%d lan->recv_len:%d errno:%d\n", id, lan->recv_len, errno);
-                        
+
                         lwip_close(lan->client_fd[id]);
                         lan->client_fd[id] = -1;
                         if(tcp_client_count > 0)
@@ -837,11 +834,12 @@ void gagent_lan_thread(void *parameter)
                             rt_kprintf("\r\n");
                         }
 #endif
+
                         lan->send_len = lwip_send(lan->client_fd[id], lan->send_buf, lan->send_len, 0);
                         if(lan->send_len <= 0)
                         {
                             gagent_err("tcp client [%d] send failed! errno:%d\n", id, errno);
-                            
+
                             lwip_close(lan->client_fd[id]);
                             lan->client_fd[id] = -1;
                             if(tcp_client_count > 0)
@@ -861,12 +859,11 @@ void gagent_lan_thread(void *parameter)
                 lan->client_fd[id] = -1;
             }
         }
-        
+
         tcp_client_count = 0;
         gagent_close_tcp_socket(lan);
         gagent_close_udp_socket(lan);
         gagent_close_localudp_socket(lan);
-        
     }
 }
 
@@ -874,7 +871,7 @@ static int lan_local_send(lan_st *lan, void *data, int len)
 {
     struct sockaddr_in server_addr = {0};
     int send_len;
-    
+
     server_addr.sin_family = AF_INET;
     server_addr.sin_port = lan->local_port;
     server_addr.sin_addr = *((const struct in_addr *)&netif_default->ip_addr);
@@ -888,14 +885,14 @@ static int lan_local_send(lan_st *lan, void *data, int len)
 int gagent_lan_send_packet(lan_st *lan, rt_uint8_t action, rt_uint8_t *buf, rt_uint16_t buf_len)
 {
     int rc = RT_EOK;
-    
+
     memset(lan->send_buf, 0, sizeof(lan->send_buf));
     lan->send_len = 0;
 
     lan->send_len = gagent_set_one_packet(lan->send_buf, action, buf, buf_len);
-    
+
 #ifdef LAN_SEND_DEBUG
-	{
+    {
         uint32_t i;
         rt_kprintf("lan send_len:%d\n", lan->send_len);
         for(i = 0; i < lan->send_len; i ++)
@@ -903,7 +900,7 @@ int gagent_lan_send_packet(lan_st *lan, rt_uint8_t action, rt_uint8_t *buf, rt_u
             rt_kprintf("%02x ", lan->send_buf[i]);
         }
         rt_kprintf("\r\n");
-	}
+    }
 #endif
 
     rc = lan_local_send(lan, lan->send_buf, lan->send_len);
@@ -915,7 +912,7 @@ int gagent_lan_send_packet(lan_st *lan, rt_uint8_t action, rt_uint8_t *buf, rt_u
     {
         rc = -RT_ERROR;
     }
-    
+
     return rc;
 }
 
@@ -935,6 +932,6 @@ int gagent_lan_init(lan_st *lan)
         rt_free(lan);
         return -RT_ERROR;
     }
-        
+
     return RT_EOK;
 }

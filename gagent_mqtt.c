@@ -1,26 +1,26 @@
 /*
- * File      : gagent_mqtt.c
- * This file is part of RT-Thread RTOS
- * COPYRIGHT (C) 2018, RT-Thread Development Team
- *
- *  This program is free software; you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation; either version 2 of the License, or
- *  (at your option) any later version.
- *
- *  This program is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License along
- *  with this program; if not, write to the Free Software Foundation, Inc.,
- *  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
- *
- * Change Logs:
- * Date           Author       Notes
- * 2018-01-03     flyingcys    first version
- */
+* File      : gagent_mqtt.c
+* This file is part of RT-Thread RTOS
+* COPYRIGHT (C) 2018, RT-Thread Development Team
+*
+*  This program is free software; you can redistribute it and/or modify
+*  it under the terms of the GNU General Public License as published by
+*  the Free Software Foundation; either version 2 of the License, or
+*  (at your option) any later version.
+*
+*  This program is distributed in the hope that it will be useful,
+*  but WITHOUT ANY WARRANTY; without even the implied warranty of
+*  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+*  GNU General Public License for more details.
+*
+*  You should have received a copy of the GNU General Public License along
+*  with this program; if not, write to the Free Software Foundation, Inc.,
+*  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+*
+* Change Logs:
+* Date           Author       Notes
+* 2018-01-03     flyingcys    first version
+*/
 #include "gagent_def.h"
 #include "gagent_cloud.h"
 
@@ -39,15 +39,15 @@ static int mqtt_push_ota(cloud_st *cloud, char *packet)
 
 static int mqtt_trans_data(cloud_st *cloud, char *packet)
 {
-    uint16_t len, cmd;
+    rt_uint16_t len, cmd;
     char *index, *kv;
-    uint16_t kv_len;
-    uint8_t length_len, action;
+    rt_uint16_t kv_len;
+    rt_uint8_t length_len, action;
 
     action = 0;
     kv = 0;
     kv_len = 0;
-    
+
     index = packet;
     len = gagent_parse_rem_len((const uint8_t *)index + 4);
     length_len = gagent_num_rem_len_bytes((const uint8_t *)index + 4);
@@ -56,7 +56,7 @@ static int mqtt_trans_data(cloud_st *cloud, char *packet)
 
     rt_memcpy(&cmd, index, 2);
     index += 2;
-    
+
     cmd = ntohs(cmd);
     gagent_dbg("cmd:%x\n", cmd);
 
@@ -79,7 +79,7 @@ static int mqtt_trans_data(cloud_st *cloud, char *packet)
     }
     else
         return -RT_ERROR;
-    
+
     return gagent_cloud_recv_packet(CMD_FROM_MQTT, action, (rt_uint8_t *)kv, kv_len);
 }
 
@@ -94,18 +94,17 @@ static void gagent_mqtt_callback(MQTTClient *c, MessageData *msg_data)
     int rc = RT_EOK;
 
 #ifdef MQTT_RECV_DEBUG
-	{
-    size_t len;
-    char *data = (char *)msg_data->message->payload;
-    gagent_dbg("mqtt_callback topic_name: %d %s\n", msg_data->topicName->lenstring.len, msg_data->topicName->lenstring.data);
-
-    rt_kprintf("mqtt recv_len:%d\n", msg_data->message->payloadlen);
-    for(len = 0; len < msg_data->message->payloadlen; len ++)
     {
-        rt_kprintf("%02x ", data[len]);
+        size_t len;
+        char *data = (char *)msg_data->message->payload;
+        gagent_dbg("mqtt_callback topic_name: %d %s\n", msg_data->topicName->lenstring.len, msg_data->topicName->lenstring.data);
+
+        rt_kprintf("mqtt recv_len:%d\n", msg_data->message->payloadlen);
+        for(len = 0; len < msg_data->message->payloadlen; len ++)
+            rt_kprintf("%02x ", data[len]);
+
+        rt_kprintf("\r\n");
     }
-    rt_kprintf("\r\n");
-	}
 #endif
 
     one_packet = (char *)msg_data->message->payload;
@@ -114,27 +113,26 @@ static void gagent_mqtt_callback(MQTTClient *c, MessageData *msg_data)
     {
         memcpy(&cmd, one_packet + 6, 2);
         cmd = ntohs(cmd);
-        
+
         gagent_dbg("mqtt_cmd:%x\n", cmd);
         switch(cmd)
         {
-            case 0x10:                     //log on/off
-            break;
-            
-            case 0x90:                     //trans data
-            case 0x93:
-                rc = mqtt_trans_data(cloud, one_packet);
+        case 0x10:                     //log on/off
             break;
 
-            case 0x210:                 //app number change
-
+        case 0x90:                     //trans data
+        case 0x93:
+            rc = mqtt_trans_data(cloud, one_packet);
             break;
 
-            case 0x211:                 //push ota
-                rc = mqtt_push_ota(cloud, one_packet);
+        case 0x210:                 //app number change
             break;
 
-            default:
+        case 0x211:                 //push ota
+            rc = mqtt_push_ota(cloud, one_packet);
+            break;
+
+        default:
             break;
         }
         one_packet += (data_len + len_num + HEAD_LEN);
@@ -182,7 +180,7 @@ int gagent_mqtt_send_packet(cloud_st *cloud, rt_uint8_t action, rt_uint8_t *buf,
 {
     int rc = RT_EOK;
     char topic[128];
-    
+
     memset(topic, 0, sizeof(topic));
     rt_snprintf(topic, sizeof(topic), "dev2app/%s", cloud->con->did);
     gagent_dbg("pub_topic:%s\n", topic);
@@ -193,15 +191,15 @@ int gagent_mqtt_send_packet(cloud_st *cloud, rt_uint8_t action, rt_uint8_t *buf,
     cloud->send_len = gagent_set_one_packet(cloud->send_buf, action, buf, buf_len);
 
 #ifdef MQTT_SEND_DEBUG
-	{
-    uint32_t i;
-    rt_kprintf("mqtt send_len:%d\n", cloud->send_len);
-    for(i = 0; i < cloud->send_len; i ++)
     {
-        rt_kprintf("%02x ", cloud->send_buf[i]);
+        uint32_t i;
+        rt_kprintf("mqtt send_len:%d\n", cloud->send_len);
+        for(i = 0; i < cloud->send_len; i ++)
+        {
+            rt_kprintf("%02x ", cloud->send_buf[i]);
+        }
+        rt_kprintf("\r\n");
     }
-    rt_kprintf("\r\n");
-	}
 #endif
 
     rc = gagent_mqtt_client_publish(topic, cloud->send_buf, cloud->send_len);
@@ -211,15 +209,15 @@ int gagent_mqtt_send_packet(cloud_st *cloud, rt_uint8_t action, rt_uint8_t *buf,
 int gagent_mqtt_init(cloud_st *cloud)
 {
     MQTTPacket_connectData data = MQTTPacket_connectData_initializer;
- 
-		RT_ASSERT(cloud != RT_NULL);
+
+    RT_ASSERT(cloud != RT_NULL);
 
     memset(&gagent_mqtt, 0, sizeof(gagent_mqtt));
-    
+
     gagent_mqtt.host = cloud->mqtt_server;
     gagent_mqtt.port = cloud->mqtt_port;
 
-    
+
     memcpy(&gagent_mqtt.condata, &data, sizeof(MQTTPacket_connectData));
     gagent_mqtt.condata.keepAliveInterval = 30;
     gagent_mqtt.condata.MQTTVersion = 3;
@@ -227,7 +225,7 @@ int gagent_mqtt_init(cloud_st *cloud)
     gagent_mqtt.condata.clientID.cstring = cloud->con->did;
     gagent_mqtt.condata.username.cstring = cloud->con->did;
     gagent_mqtt.condata.password.cstring = cloud->con->passcode;
-    
+
     gagent_mqtt.buf_size = gagent_mqtt.readbuf_size = 1024;
     gagent_mqtt.buf = malloc(gagent_mqtt.buf_size);
     gagent_mqtt.readbuf = malloc(gagent_mqtt.readbuf_size);
@@ -252,14 +250,14 @@ int gagent_mqtt_init(cloud_st *cloud)
     gagent_mqtt.messageHandlers[1].callback = gagent_mqtt_callback;
 
     gagent_mqtt.defaultMessageHandler = gagent_mqtt_callback;
-    
+
     gagent_dbg("host:%s port:%d\n", gagent_mqtt.host, gagent_mqtt.port);
     gagent_dbg("clientID:%s username:%s password:%s\n", 
-                    gagent_mqtt.condata.clientID.cstring, 
-                    gagent_mqtt.condata.username.cstring,
-                    gagent_mqtt.condata.password.cstring);
+    gagent_mqtt.condata.clientID.cstring, 
+    gagent_mqtt.condata.username.cstring,
+    gagent_mqtt.condata.password.cstring);
     gagent_dbg("topic:%s\n", gagent_mqtt.messageHandlers[0].topicFilter);
-		
+
     return paho_mqtt_start(&gagent_mqtt);
 }
 
