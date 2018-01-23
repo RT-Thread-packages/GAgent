@@ -82,7 +82,7 @@ static int gagent_cloud_parse_config(con_st *con)
     memset(con, 0, sizeof(con_st));
 
     if(con_param.read_param_callback(con, sizeof(con_st)) != RT_EOK)
-    gagent_err("read param failed!\n");
+        gagent_err("read param failed!\n");
 
     if(con->mac[0] == 0 || memcmp(con->mac, con_param.mac, sizeof(con->mac)) != 0)
     {
@@ -288,10 +288,10 @@ int gagent_cloud_start(gagent_cloud_param *param)
     return rc;
 
 __exit:
-    if(cloud != RT_NULL)
+    if(RT_NULL != cloud)
         rt_free(cloud);
 
-    if(lan != RT_NULL)
+    if(RT_NULL != lan)
         rt_free(lan);
 
     return rc;    

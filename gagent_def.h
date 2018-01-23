@@ -44,27 +44,27 @@ extern "C" {
 #define     gagent_err(...)
 #endif
 
-#define MAX_CLIENT			8
+#define MAX_CLIENT              8
 
 
-#define BUF_LEN 				2048 
+#define BUF_LEN                 2048 
 
 #define HEAD_LEN                5       
 #define UDP_RECV_ERROR          199
 #define TCP_RECV_ERROR_BASE     100
-#define LOG_IP_BUF_LENGTH		16
+#define LOG_IP_BUF_LENGTH       16
 
-#define HARD_VERSION			"01RTT001"
-#define SOFT_VERSION			"04020020"
+#define HARD_VERSION            "01RTT001"
+#define SOFT_VERSION            "04020020"
 
 
-#define G_SERVICE_DOMAIN 	    "api.gizwits.com"
-#define G_SERVICE_PORT		    "80"
-#define G_M2M_DOMAIN		    "sandbox.gizwits.com"
-#define G_M2M_PORT			    "1883"
-#define G_M2M_SSL_PORT		    "8883"
+#define G_SERVICE_DOMAIN        "api.gizwits.com"
+#define G_SERVICE_PORT          "80"
+#define G_M2M_DOMAIN            "sandbox.gizwits.com"
+#define G_M2M_PORT              "1883"
+#define G_M2M_SSL_PORT          "8883"
 
-#define DID_LENGTH			    22
+#define DID_LENGTH              22
 
 
 enum GAGENT_HARD_TYPE
