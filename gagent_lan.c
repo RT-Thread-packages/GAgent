@@ -516,7 +516,7 @@ static int gagent_create_localudp_socket(lan_st *lan)
     struct sockaddr_in local_udp_server;
 
     if(lan->local_sock != -1)
-    return RT_EOK;
+        return RT_EOK;
 
     lan->local_sock = lwip_socket(AF_INET, SOCK_DGRAM, 0);
     if(lan->local_sock < 0)
@@ -681,9 +681,7 @@ void gagent_lan_thread(void *parameter)
                 lan->recv_len = lwip_recvfrom(lan->local_sock, lan->recv_buf, sizeof(lan->recv_buf), 0,
                                                 (struct sockaddr *)&local_client_addr, (socklen_t *)&addr_len);
                 if(local_client_addr.sin_addr.s_addr != *(uint32_t *)&netif_default->ip_addr)
-                {
                     continue;
-                }
 
                 if(lan->recv_len <= 0)
                 {
@@ -727,9 +725,8 @@ void gagent_lan_thread(void *parameter)
                     gagent_dbg("udp client:%s port:%d\n", inet_ntoa(client_addr.sin_addr), ntohs(client_addr.sin_port));
                     rt_kprintf("recv len:%d ", lan->recv_len);
                     for(i = 0; i < lan->recv_len; i ++)
-                    {
                         rt_kprintf("%02x ", lan->recv_buf[i]);
-                    }
+
                     rt_kprintf("\r\n");
                 }
 #endif
@@ -742,9 +739,8 @@ void gagent_lan_thread(void *parameter)
                     {
                         int t;
                         for(t = 0; t < lan->send_len; t ++)
-                        {
                             rt_kprintf("%02x ", lan->send_buf[t]);
-                        }
+
                         rt_kprintf("\r\n");
                     }
 #endif
@@ -771,7 +767,8 @@ void gagent_lan_thread(void *parameter)
                 }
                 gagent_dbg("client_sock:%d\n", client_sock);
 
-                for(id = 0; id < MAX_CLIENT; id ++) {
+                for(id = 0; id < MAX_CLIENT; id ++)
+                {
                     if(lan->client_fd[id] == -1)
                         break;
                 }
@@ -813,9 +810,8 @@ void gagent_lan_thread(void *parameter)
                         int t;
                         gagent_dbg("lan %d recv len:%d\n", id, lan->recv_len);
                         for(t = 0; t < lan->recv_len; t ++)
-                        {
                             rt_kprintf("%02x ", lan->recv_buf[t]);
-                        }
+
                         rt_kprintf("\r\n");
                     }
 #endif
@@ -828,9 +824,8 @@ void gagent_lan_thread(void *parameter)
                         {
                             int t;
                             for(t = 0; t < lan->send_len; t ++)
-                            {
                                 rt_kprintf("%02x ", lan->send_buf[t]);
-                            }
+
                             rt_kprintf("\r\n");
                         }
 #endif
@@ -896,22 +891,17 @@ int gagent_lan_send_packet(lan_st *lan, rt_uint8_t action, rt_uint8_t *buf, rt_u
         uint32_t i;
         rt_kprintf("lan send_len:%d\n", lan->send_len);
         for(i = 0; i < lan->send_len; i ++)
-        {
             rt_kprintf("%02x ", lan->send_buf[i]);
-        }
+
         rt_kprintf("\r\n");
     }
 #endif
 
     rc = lan_local_send(lan, lan->send_buf, lan->send_len);
     if (rc == lan->send_len)
-    {
         rc = RT_EOK;
-    }
     else
-    {
         rc = -RT_ERROR;
-    }
 
     return rc;
 }

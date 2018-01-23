@@ -94,7 +94,7 @@ static int webclient_common(int method, const char *URI,
     {
         gagent_dbg("chunk_sz:%d\n", session->chunk_sz);
         total = session->chunk_sz;
-   }
+    }
     else if(session->content_length > 0)
     {
         gagent_dbg("content_length:%d content_length_remainder:%d\n", session->content_length, session->content_length_remainder);

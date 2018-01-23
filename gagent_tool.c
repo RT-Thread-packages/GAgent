@@ -31,9 +31,7 @@ int gagent_add_pkcs(char *src, int len)
     rt_memset(pkcs, 0, sizeof(pkcs));   
 
     for(i = 0; i < cs; i ++ )
-    {        
         pkcs[i] = cs;    
-    }
 
     rt_memcpy(src + len, pkcs, cs);
     
@@ -52,7 +50,7 @@ rt_uint16_t gagent_parse_rem_len(const rt_uint8_t *buf)
         value += (digit & 0x7F) * multiplier;
         multiplier *= 0x80;
         buf++;
-    } while((digit & 0x80) != 0);
+    }while((digit & 0x80) != 0);
 
     return value;
 }
@@ -61,7 +59,7 @@ rt_uint8_t gagent_num_rem_len_bytes(const uint8_t* buf)
 {
     rt_uint8_t num_bytes = 1;
 
-    if ((buf[0] & 0x80) == 0x80)
+    if((buf[0] & 0x80) == 0x80)
     {
         num_bytes++;
         if((buf[1] & 0x80) == 0x80)
@@ -129,9 +127,7 @@ int gagent_set_one_packet(char *packet, uint8_t action, uint8_t *buf, uint32_t b
     //
     packet_len = buf_len + 3;           //flag + cmd * 2
     if(buf && (buf_len > 0))
-    {
         packet_len += 1;                //action
-    }
 
     memset(length_bytes, 0, sizeof(length_bytes));
     length_num = gagent_get_rem_len(packet_len, length_bytes);
