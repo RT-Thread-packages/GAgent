@@ -1,4 +1,3 @@
-## RT-Thread机智云接入
 ### 1. GAgent Package获取：
 GAgent of Gizwits in RT-Thread是运行在RT-Thread上的机智云接入package，代码已开源在RT-Thread-packages/GAgent[https://github.com/RT-Thread-packages/GAgent](https://github.com/RT-Thread-packages/GAgent) 上。
 #### 1.1 RT-Thread env工具：
@@ -54,11 +53,7 @@ GAgent of Gizwits in RT-Thread是运行在RT-Thread上的机智云接入package�
 
 ### 3. 运行GAgent：  
 #### 3.1 GAgent example：  
-* 如在menuconfig中选中“Enable GAgent Example”,在编译过程中会加入GAgent Package包中example目录下的gagent_cloud_demo.c。该文件完成GAgent初始化，可通过finsh/msh启动运行  
-![example](images/example.png)  
-
-
-#### 3.2 初始化GAgent：
+* 如在menuconfig中选中“Enable GAgent Example”,在编译过程中会加入GAgent Package包中example目录下的gagent_cloud_demo.c。该文件完成GAgent初始化，可通过finsh/msh启动运行 
 ``` C
 int gagent_cloud(void)
 {
@@ -82,21 +77,64 @@ MSH_CMD_EXPORT(gagent_cloud, gagent cloud demo);
 
 FINSH_FUNCTION_EXPORT(gagent_cloud, "gagent cloud test");
 #endif
-```
-**GAgent初始化需要用到：**  
+```  
 
-3.2.1. 将新产品注册时候“product_key”和“product_secret”填入“gagent_param.product_key”和“gagent_param.product_secret”。  
-
+#### 3.2 GAgent流程
+3.2.1 将新产品注册时候“product_key”和“product_secret”填入“gagent_param.product_key”和“gagent_param.product_secret”。  
 3.2.2. “gagent_param.mac”填入当前产品的mac地址，每个产品下的mac地址不能重复。  
+3.2.3. 分别设置“read_param_callback”、“write_param_callback”回调函数，分别对应“读参数”、“写参数”；这2个回调函数必须实现正确的参数读取与写入。  
+``` C
+int gagent_read_param(struct gagent_config *param, rt_uint32_t len)
+{
+    /* read param */
+#ifdef RT_USING_DFS
+    int fd;
 
-3.3.3. 分别设置“read_param_callback”、“write_param_callback”回调函数，分别对应“读参数”、“写参数”；这2个回调函数必须实现正确的参数读取与写入。  
+    fd = open("/sdcard/demo", O_RDONLY, 0);
+    if(fd >= 0)
+    {
+        read(fd, param, len);
+        close(fd);
+    }
+    else
+        return -RT_EOK;
+#endif
+    return RT_EOK;
+}
 
-3.3.4. 设置“recv_packet_callback”回调函数，该回调为APP下发数据包处理函数。  
+int gagent_write_param(struct gagent_config *param, rt_uint32_t len)
+{
+    /* write param */
 
+    rt_kprintf("mac:%s", param->mac);
+    rt_kprintf("did:%s", param->did);
+    rt_kprintf("passcode:%s", param->passcode);
+    rt_kprintf("pk:%s", param->pk);
+    rt_kprintf("pk_secret:%s", param->pk_secret);
+    rt_kprintf("hard_version:%s", param->hard_version);
+    rt_kprintf("soft_version:%s", param->soft_version);
+    
+#ifdef RT_USING_DFS
+    int fd;
+
+    fd = open("/sdcard/demo", O_WRONLY | O_CREAT |O_TRUNC | O_BINARY, 0);
+    if(fd >= 0)
+    {
+
+        write(fd, param, len);
+        close(fd);
+    }
+#endif
+    return RT_EOK;
+```
+
+3.2.4. 设置“recv_packet_callback”回调函数，该回调为APP下发数据包处理函数。  
 1. 数据包协议请参照“2.2.4通讯协议文档”。  
-
 2. 设备收到APP下发“ACTION_CONTROL”命令完成处理后，需使用“ACTION_REPORT_STATUS”同步状态。  
+3.2.5. 调用“gagent_cloud_start”启动GAgent。  
 
-3.3.5. 调用“gagent_cloud_start”启动GAgent。  
+#### 3.3 设备主动上报：  
+设备主动上报使用“gagent_cloud_send_packet”函数。  
 
-3.3.6. 设备主动上报使用“gagent_cloud_send_packet”函数。  
+#### 3.4 错误处理:
+3.4.1
