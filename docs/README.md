@@ -20,7 +20,7 @@ GAgent of Gizwits in RT-Thread是运行在RT-Thread上的机智云接入package�
 * GAgent同时还用到了“security package”中的“TinyCrypt”中的AES加解密，已默认选中。其他加密算法暂时没有用到，可手工关闭。
 ![TinyCrypt](images/TinyCrypt.png)  
 
-* 在env工具下输入`pkgs --update`下载Package，等待下载完成后，当前stm32f429-apollo目录下的packages下已经有GAgent及其他相关packages。
+* 在env工具下输入`pkgs --update`下载Package，等待下载完成后，当前stm32f429-apollo目录下的packages下已经有GAgent及其他相关packages。  
 ![packages](images/packages.png)
 
 ### 2. 运行前准备：
