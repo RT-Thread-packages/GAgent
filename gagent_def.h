@@ -57,7 +57,6 @@ extern "C" {
 #define HARD_VERSION            "01RTT001"
 #define SOFT_VERSION            "04020020"
 
-
 #define G_SERVICE_DOMAIN        "api.gizwits.com"
 #define G_SERVICE_PORT          "80"
 #define G_M2M_DOMAIN            "sandbox.gizwits.com"
@@ -73,22 +72,7 @@ enum GAGENT_HARD_TYPE
     GAGENT_HARD_MCU = 2,
 };
 
-
-typedef struct _con_st	con_st;
-
-struct _con_st
-{
-    char mac[32 + 1];
-    char did[32 + 1];
-    char passcode[16 + 1];
-    char pk[48 + 1];
-    char pk_secret[48 + 1];
-    char hard_version[16 + 1];
-    char soft_version[16 + 1];
-}; 
-
-
-typedef struct _cloud_st cloud_st;
+typedef struct gagent_config con_st;
 
 struct _cloud_st
 {
@@ -106,12 +90,13 @@ struct _cloud_st
     char ota_info[128];
     int sn;
 };
+typedef struct _cloud_st cloud_st;
 
 typedef struct _lan_st lan_st;
 
 struct _lan_st
 {
-    con_st	*con;
+    con_st *con;
     //
     int	client_fd[MAX_CLIENT];
     int tcp_server;

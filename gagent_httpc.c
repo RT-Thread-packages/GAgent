@@ -22,6 +22,7 @@
  * 2018-01-03     flyingcys    first version
  */
 #include "gagent_def.h"
+#include "gagent_cloud.h"
 #include "aes.h"
 
 #define     MAX_HTTPC_URL_LEN           1024

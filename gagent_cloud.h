@@ -32,13 +32,25 @@ extern "C" {
 #define     PRODUCT_SECERT_LEN          32
 #define     MAX_MAC_LEN                 32
 
+struct gagent_config
+{
+    char mac[32 + 1];
+    char did[32 + 1];
+    char passcode[16 + 1];
+    char pk[48 + 1];
+    char pk_secret[48 + 1];
+    char hard_version[16 + 1];
+    char soft_version[16 + 1];
+}; 
+
+
 typedef struct
 {
     char product_key[PRODUCT_KEY_LEN + 1];
     char product_secret[PRODUCT_SECERT_LEN + 1];
     char mac[MAX_MAC_LEN + 1];
-    int (*read_param_callback)(void *param, rt_uint32_t len);
-    int (*write_param_callback)(void *param, rt_uint32_t len);
+    int (*read_param_callback)(struct gagent_config *param, rt_uint32_t len);
+    int (*write_param_callback)(struct gagent_config *param, rt_uint32_t len);
     int (*recv_packet_callback)(rt_uint8_t from, rt_uint8_t action, rt_uint8_t *kv, rt_uint16_t kv_len);
 } gagent_cloud_param;
 
