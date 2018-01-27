@@ -6,9 +6,12 @@ GAgent是机智云物联网整体解决方案中可入网设备（如WiFi模组�
 应用GAgent of Gizwits in RT-Thread后，开发者可更多关注设备本身的功能开发，而无需关心设备与机智云平台通讯交互过程。
 
 ### 2.相关链接：
-1. 机智云开发者中心：[https://dev.gizwits.com/zh-cn/developer/](https://dev.gizwits.com/zh-cn/developer/)  
-2. Env工具获取：`RT-Thread官网`->`资源`->`下载`[https://www.rt-thread.org/page/download.html](https://www.rt-thread.org/page/download.html)  
-3. Env工具使用手册：`RT-Thread官网`->`文档`->`用户手册`->`RT-Thread工具手册`[https://www.rt-thread.org/document/site/zh/5chapters/01-chapter_env_manual/#env](https://www.rt-thread.org/document/site/zh/5chapters/01-chapter_env_manual/#env)  
+1. 机智云开发者中心：  
+[https://dev.gizwits.com/zh-cn/developer/](https://dev.gizwits.com/zh-cn/developer/)  
+2. Env工具获取：`RT-Thread官网`->`资源`->`下载`  
+[https://www.rt-thread.org/page/download.html](https://www.rt-thread.org/page/download.html)  
+3. Env工具使用手册：`RT-Thread官网`->`文档`->`用户手册`->`RT-Thread工具手册`  
+[https://www.rt-thread.org/document/site/zh/5chapters/01-chapter_env_manual/#env](https://www.rt-thread.org/document/site/zh/5chapters/01-chapter_env_manual/#env)  
 
 ### 3.GAgent使用：
-请参考example目录下gagent_cloud_demo.c文件。详情请阅读[《GAgent of Gizwits in RT-Thread使用手册》](./docs/README.md)
+GAgent使用示例请参考example目录下gagent_cloud_demo.c文件，详情可阅读[《GAgent of Gizwits in RT-Thread使用手册》](./docs/README.md)。
