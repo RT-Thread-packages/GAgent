@@ -29,23 +29,57 @@
 #include <finsh.h>
 #endif
 
+#ifdef RT_USING_DFS
+#include <dfs_posix.h>
+#endif
+
 #define     DEMO_PRODUCT_KEY                    "1371df627fa64e849f32fe17ebd5fd38"
 #define     DEMO_PRODUCT_KEY_SECRET             "067a83b650544d979bb3d4d147f32034"   
 #define     DEMO_MAC                            "\xBC\x12\x34\x56\x78\x23"
 
 static gagent_cloud_param gagent_param;
 
-int gagent_read_param(void *param, rt_uint32_t len)
+int gagent_read_param(struct gagent_config *param, rt_uint32_t len)
 {
     /* read param */
-    
+#ifdef RT_USING_DFS
+    int fd;
+
+    fd = open("/sdcard/demo", O_RDONLY, 0);
+    if(fd >= 0)
+    {
+        read(fd, param, len);
+        close(fd);
+    }
+    else
+        return -RT_EOK;
+#endif
     return RT_EOK;
 }
 
-int gagent_write_param(void *param, rt_uint32_t len)
+int gagent_write_param(struct gagent_config *param, rt_uint32_t len)
 {
     /* write param */
+
+    rt_kprintf("mac:%s", param->mac);
+    rt_kprintf("did:%s", param->did);
+    rt_kprintf("passcode:%s", param->passcode);
+    rt_kprintf("pk:%s", param->pk);
+    rt_kprintf("pk_secret:%s", param->pk_secret);
+    rt_kprintf("hard_version:%s", param->hard_version);
+    rt_kprintf("soft_version:%s", param->soft_version);
     
+#ifdef RT_USING_DFS
+    int fd;
+
+    fd = open("/sdcard/demo", O_WRONLY | O_CREAT |O_TRUNC | O_BINARY, 0);
+    if(fd >= 0)
+    {
+
+        write(fd, param, len);
+        close(fd);
+    }
+#endif
     return RT_EOK;
 }
 

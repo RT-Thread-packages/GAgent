@@ -22,6 +22,7 @@
  * 2018-01-03     flyingcys    first version
  */
 #include "gagent_def.h"
+#include "gagent_cloud.h"
 #include "aes.h"
 
 #define     MAX_HTTPC_URL_LEN           1024
@@ -94,7 +95,7 @@ static int webclient_common(int method, const char *URI,
     {
         gagent_dbg("chunk_sz:%d\n", session->chunk_sz);
         total = session->chunk_sz;
-   }
+    }
     else if(session->content_length > 0)
     {
         gagent_dbg("content_length:%d content_length_remainder:%d\n", session->content_length, session->content_length_remainder);
@@ -327,7 +328,7 @@ int gagent_cloud_provision(cloud_st *cloud)
 {
     int rc = RT_EOK;
     int content_len, aes_len, i;
-    
+
     char *url = RT_NULL;
     char *content = RT_NULL;
     char *ptr = RT_NULL;
@@ -336,14 +337,14 @@ int gagent_cloud_provision(cloud_st *cloud)
     char aes_key[16];
     char *aes_buf = RT_NULL;
     aes_context *aes_ctx = RT_NULL;
-    
+
     content = (char *)rt_malloc(256);
     if(RT_NULL == content)
     {
         rc = -RT_ENOMEM;
         goto __exit;
     }
-    
+
     aes_buf = (char *)rt_malloc(256);
     if(RT_NULL == aes_buf)
     {
@@ -402,13 +403,13 @@ int gagent_cloud_provision(cloud_st *cloud)
 
     ptr = url;
     rt_memset(url, 0, MAX_HTTPC_URL_LEN);
-    
+
     //url
     ptr += rt_snprintf(ptr, MAX_HTTPC_URL_LEN - (ptr - url), "http://%s:%s", G_SERVICE_DOMAIN, G_SERVICE_PORT);
     ptr += rt_snprintf(ptr, MAX_HTTPC_URL_LEN - (ptr - url), "/dev/%s/device?", cloud->con->pk);
     ptr += rt_snprintf(ptr, MAX_HTTPC_URL_LEN - (ptr - url), "did=%s", content);
     gagent_dbg("url:%s\n", url);
-    
+
     //
     rt_memset(cloud->mqtt_server, 0, sizeof(cloud->mqtt_server));
     rt_memcpy(cloud->mqtt_server, G_M2M_DOMAIN, sizeof(G_M2M_DOMAIN));
@@ -423,23 +424,23 @@ int gagent_cloud_provision(cloud_st *cloud)
         rc = -RT_ENOMEM;
         goto __exit;
     }
-    
+
     rc = webclient_get((const char *)url, gagent_cloud_httpc_cb);
     if(rc != RT_EOK)
     {
         rt_kprintf("weblient_post failed!\n");
         goto __exit;
     }
-    
+
     rt_memset(content, 0, 256);
     aes_len = gagent_strtohex(content, httpc.recv_buf, httpc.recv_len);
 
     rt_memset(aes_ctx, 0, sizeof(aes_context));
     aes_setkey_dec(aes_ctx, (uint8_t *)aes_key, 128);
-    
+
     rt_memset(aes_buf, 0, 256);
     for(i = 0; i < aes_len; i += 16)
-        aes_crypt_ecb(aes_ctx, AES_DECRYPT, (uint8_t *)content + i, (uint8_t *)aes_buf + i);
+    aes_crypt_ecb(aes_ctx, AES_DECRYPT, (uint8_t *)content + i, (uint8_t *)aes_buf + i);
 
     gagent_dbg("%s\n", aes_buf);
 
@@ -466,7 +467,7 @@ int gagent_cloud_provision(cloud_st *cloud)
         if(ptr_tail > 0)
         {
             *ptr_tail = '\0';
-            
+
             cloud->mqtt_port = 0;
             cloud->mqtt_port = atoi(ptr);
         }
@@ -480,7 +481,7 @@ __exit:
         rt_free(httpc.recv_buf);
         httpc.recv_buf = RT_NULL;
     }
-    
+
     if(RT_NULL != url)
     {
         rt_free(url);
@@ -498,7 +499,7 @@ __exit:
         rt_free(aes_buf);
         aes_buf = RT_NULL;
     }
-    
+
     if(RT_NULL != content)
     {
         rt_free(content);
@@ -515,7 +516,7 @@ int gagent_cloud_check_ota(cloud_st *cloud)
     char *url = RT_NULL;
     char *content = RT_NULL;
     char *ptr = RT_NULL;
-    
+
     content = (char *)rt_malloc(256);
     if(RT_NULL == content)
     {
@@ -527,7 +528,7 @@ int gagent_cloud_check_ota(cloud_st *cloud)
     //data
     rt_memset(content, 0, 256);
     rt_snprintf((char *)content, 256, "passcode=%s&type=%d&hard_version=%s&soft_version=%s", \
-               cloud->con->passcode, GAGENT_HARD_SOC, cloud->con->hard_version, cloud->con->soft_version);
+    cloud->con->passcode, GAGENT_HARD_SOC, cloud->con->hard_version, cloud->con->soft_version);
 
     gagent_dbg("content:%s\n", content);
 
@@ -540,11 +541,11 @@ int gagent_cloud_check_ota(cloud_st *cloud)
 
     ptr = url;
     rt_memset(url, 0, MAX_HTTPC_URL_LEN);
-    
+
     //url
     ptr += rt_snprintf(ptr, MAX_HTTPC_URL_LEN - (ptr - url), "http://%s:%s", G_SERVICE_DOMAIN, G_SERVICE_PORT);
     ptr += rt_snprintf(ptr, MAX_HTTPC_URL_LEN - (ptr - url), "/dev/ota/v4.1/update_and_check/%s", cloud->con->did);
-    
+
     gagent_dbg("url:%s\n", url);
 
     httpc.recv_buf = RT_NULL;
@@ -561,16 +562,16 @@ int gagent_cloud_check_ota(cloud_st *cloud)
         gagent_err("weblient_post failed!\n");
         goto __exit;
     }
-    
+
 __exit:
     if(RT_NULL != httpc.recv_buf)
-        rt_free(httpc.recv_buf);
+    rt_free(httpc.recv_buf);
 
     if(RT_NULL != url)
-        rt_free(url);
+    rt_free(url);
 
     if(RT_NULL != content)
-        rt_free(content);
+    rt_free(content);
 
     return rc;
 }
