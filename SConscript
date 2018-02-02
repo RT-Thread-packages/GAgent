@@ -3,8 +3,8 @@ from building import *
 cwd     = GetCurrentDir()
 src     = Glob('*.c')
 
-if GetDepend(['PKG_USING_GAGENT_CLOUD_EXAMPLE']):
-	src += Glob('example/*.c')
+if GetDepend(['PKG_GAGENT_CLOUD_EXAMPLE']):
+        src += Glob('example/*.c')
 
 CPPPATH = [cwd]
 
