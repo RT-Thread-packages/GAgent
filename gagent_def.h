@@ -21,6 +21,14 @@
  * Date           Author       Notes
  * 2018-01-03     flyingcys    first version
  */
+#ifndef __GAGENT_DEF_H__
+#define __GAGENT_DEF_H__
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+
 #include <rtthread.h>
 #include <string.h>
 
@@ -36,27 +44,26 @@
 #define     gagent_err(...)
 #endif
 
-#define MAX_CLIENT			8
+#define MAX_CLIENT              8
 
 
-#define BUF_LEN 				2048 
+#define BUF_LEN                 2048 
 
 #define HEAD_LEN                5       
 #define UDP_RECV_ERROR          199
 #define TCP_RECV_ERROR_BASE     100
-#define LOG_IP_BUF_LENGTH		16
+#define LOG_IP_BUF_LENGTH       16
 
-#define HARD_VERSION			"01RTT001"
-#define SOFT_VERSION			"04020020"
+#define HARD_VERSION            "01RTT001"
+#define SOFT_VERSION            "04020020"
 
+#define G_SERVICE_DOMAIN        "api.gizwits.com"
+#define G_SERVICE_PORT          "80"
+#define G_M2M_DOMAIN            "sandbox.gizwits.com"
+#define G_M2M_PORT              "1883"
+#define G_M2M_SSL_PORT          "8883"
 
-#define G_SERVICE_DOMAIN 	"api.gizwits.com"
-#define G_SERVICE_PORT		"80"
-#define G_M2M_DOMAIN		"sandbox.gizwits.com"
-#define G_M2M_PORT			"1883"
-#define G_M2M_SSL_PORT		"8883"
-
-#define DID_LENGTH			22
+#define DID_LENGTH              22
 
 
 enum GAGENT_HARD_TYPE
@@ -65,47 +72,33 @@ enum GAGENT_HARD_TYPE
     GAGENT_HARD_MCU = 2,
 };
 
-
-typedef struct _con_st	con_st;
-
-struct _con_st
-{
-    char	mac[32 + 1];
-    char	did[32 + 1];
-    char	passcode[16 + 1];
-    char	pk[48 + 1];
-    char	pk_secret[48 + 1];
-    char	hard_version[16 + 1];
-    char	soft_version[16 + 1];
-}; 
-
-
-typedef struct _cloud_st cloud_st;
+typedef struct gagent_config con_st;
 
 struct _cloud_st
 {
-	con_st		*con;
+    con_st *con;
     //
-	char mqtt_server[128];
-	int mqtt_port;
-	char sub_topic[2][128];
-	//
-	char recv_buf[BUF_LEN];
-	int recv_len;
-	char send_buf[BUF_LEN];
-	int send_len;
+    char mqtt_server[128];
+    int mqtt_port;
+    char sub_topic[2][128];
     //
-	char ota_info[128];
-	int sn;
+    char recv_buf[BUF_LEN];
+    int recv_len;
+    char send_buf[BUF_LEN];
+    int send_len;
+    //
+    char ota_info[128];
+    int sn;
 };
+typedef struct _cloud_st cloud_st;
 
 typedef struct _lan_st lan_st;
 
 struct _lan_st
 {
-	con_st	*con;
-	//
-	int	client_fd[MAX_CLIENT];
+    con_st *con;
+    //
+    int	client_fd[MAX_CLIENT];
     int tcp_server;
     int udp_server;
     struct sockaddr_in tcp_server_addr;
@@ -116,12 +109,12 @@ struct _lan_st
     int local_sock;
     int local_port;
     //
-	char recv_buf[BUF_LEN];
-	int	recv_len;
-	char send_buf[BUF_LEN];
-	int	send_len;
-	//
-	int	sn;
+    char recv_buf[BUF_LEN];
+    int	recv_len;
+    char send_buf[BUF_LEN];
+    int	send_len;
+    //
+    int	sn;
 };
 
 
@@ -165,4 +158,9 @@ int gagent_mqtt_send_packet(cloud_st *cloud, rt_uint8_t action, rt_uint8_t *kv, 
 
 int gagent_mqtt_init(cloud_st *cloud);
 
-//#endif
+
+#ifdef __cplusplus
+}
+#endif
+
+#endif
