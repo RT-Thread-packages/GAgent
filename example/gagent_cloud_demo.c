@@ -86,7 +86,8 @@ int gagent_write_param(struct gagent_config *param, rt_uint32_t len)
 int gagent_recv_packet(rt_uint8_t from, rt_uint8_t action, rt_uint8_t *kv, rt_uint16_t kv_len)
 {
     /* please read product protocol */
-    uint8_t power;
+    
+    static uint8_t power;
     
     switch(action)
     {
@@ -99,7 +100,7 @@ int gagent_recv_packet(rt_uint8_t from, rt_uint8_t action, rt_uint8_t *kv, rt_ui
 
         case ACTION_READ_STATUS:
             rt_kprintf("ACTION_READ_STATUS\r\n");
-//            gagent_cloud_send_packet(ACTION_READ_STATUS_ACK, buf, buf_len);
+            gagent_cloud_send_packet(ACTION_READ_STATUS_ACK, &power, 1);
         break;
 
         case ACTION_TRANS_RECV:
